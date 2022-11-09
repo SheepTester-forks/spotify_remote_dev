@@ -28,7 +28,7 @@
 
 <!------------------------------------------ ABOUT THE PROJECT ---------------------------------------------------------->
 ## About The Project
-See our [project charter](https://docs.google.com/document/d/1Ot3jMBS96P4pptXHAh-5pquK0DeCbHlZKEKW69NrF_Q/edit)
+See our [Project Charter](https://docs.google.com/document/d/1Ot3jMBS96P4pptXHAh-5pquK0DeCbHlZKEKW69NrF_Q/edit)
 
 This is an introductory project/workshop on IoT hardware where students can create a WiFi-enabled remote for Spotify. By the end of the day, students will gain a broader understanding of embedded development and API services.
 
@@ -64,6 +64,7 @@ PlatformIO (Visual Studio Code Extension):
     * Python 3.x or the latest version
 
 Additionally see here for [Prerequisites](https://docs.google.com/document/d/1ayXbvKg1j7JOZCThSJutbCrCwtTU6byMtOS7RLs7JzM/edit)
+
 ### Installation
 
 
