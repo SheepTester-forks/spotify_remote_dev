@@ -20,8 +20,6 @@
       </ul>
     </li>
     <li><a href="#usage"> Usage </a></li>
-    <li><a href="#high-level-architecture"> High Level Architecture </a></li>
-    <li><a href="#contributing"> Contributing </a></li>
   </ol>
 </details>
 
@@ -33,7 +31,7 @@ See our [Project Charter](https://docs.google.com/document/d/1Ot3jMBS96P4pptXHAh
 This is an introductory project/workshop on IoT hardware where students can create a WiFi-enabled remote for Spotify. By the end of the day, students will gain a broader understanding of embedded development and API services.
 
 ### Technologies
-* [ESP32](https://www.espressif.com/en/products/socs/esp32)
+* [ESP8266](https://www.espressif.com/en/products/socs/esp8266)
 * [PlatformIO](https://platformio.org/)
 * [Spotify API](https://developer.spotify.com/documentation/web-api/)
 
@@ -66,7 +64,12 @@ PlatformIO (Visual Studio Code Extension):
 Additionally see here for [Prerequisites](https://docs.google.com/document/d/1ayXbvKg1j7JOZCThSJutbCrCwtTU6byMtOS7RLs7JzM/edit)
 
 ### Installation
-
+  1. Clone the repo:
+  ```
+    git clone https://github.com/Project-in-a-Box-JSOE/spotify_remote_dev
+  ```
+  2. Open the repo as a PlatformIO project
+  3. Follow along through our [workshop slides](https://docs.google.com/presentation/d/1-BmdbKempxMLJTgQfdcMZBaUyBUgbPFwDdZr1YG0QO4/edit?usp=sharing)
 
 <!------------------------------------------ USAGE EXAMPLES -------------------------------------------------------------->
 ## Usage
@@ -74,11 +77,3 @@ Additionally see here for [Prerequisites](https://docs.google.com/document/d/1ay
 
 <!------------------------------------------ HIGH LEVEL ARCHITECTURE ----------------------------------------------------->
 ## High Level Architecture
-
-
-<!------------------------------------------ CONTRIBUTING ---------------------------------------------------------------->
-## Contributing
-
-
-<!------------------------------------------ CONTACT --------------------------------------------------------------------->
-## Contact

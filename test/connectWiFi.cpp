@@ -1,12 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
-
-//------- Replace the following! ------
-
-char ssid[] = "UCSD-GUEST";         // your network SSID (name)
-char password[] = "";               // your network password
-
-//------- ---------------------- ------
+#include "secrets.h"
 
 WiFiClientSecure client;
 
@@ -14,7 +8,7 @@ void setup() {
   Serial.begin(115200);
 
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.println("");
 
   // Wait for connection
@@ -24,7 +18,7 @@ void setup() {
   }
   Serial.println("");
   Serial.print("Connected to ");
-  Serial.println(ssid);
+  Serial.println(WIFI_SSID);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 }
