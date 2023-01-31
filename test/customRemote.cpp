@@ -8,8 +8,9 @@
 #include <SpotifyArduinoCert.h>
 #include "secrets.h"
 
-// Country code, including this is advisable
+// Country code, including this is advisable. Button pin
 #define SPOTIFY_MARKET "US"
+#define BUTTON_PIN D2
 
 WiFiClientSecure client;
 SpotifyArduino spotify(client, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN);
@@ -44,22 +45,18 @@ void setup() {
     if(!spotify.refreshAccessToken()) {
         Serial.println("Failed to get access tokens");
     }
+
+    // Configure button as an input
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
 }
 
 void printCurrentlyPlayingToSerial(CurrentlyPlaying currentlyPlaying) {
 
     Serial.println("--------- Currently Playing ---------");
 
-    // Print if song is playing
-    Serial.print("Is Playing: ");
-    if (currentlyPlaying.isPlaying) Serial.println("Yes");
-    else Serial.println("No");
-
     // Print current track
     Serial.print("Track: ");
     Serial.println(currentlyPlaying.trackName);
-    Serial.print("Track URI: ");
-    Serial.println(currentlyPlaying.trackUri);
     Serial.println("");
 
     // Print artists
@@ -67,56 +64,19 @@ void printCurrentlyPlayingToSerial(CurrentlyPlaying currentlyPlaying) {
     for (int i = 0; i < currentlyPlaying.numArtists; i++) {
         Serial.print("Name: ");
         Serial.println(currentlyPlaying.artists[i].artistName);
-        Serial.print("Artist URI: ");
-        Serial.println(currentlyPlaying.artists[i].artistUri);
         Serial.println("");
     }
 
-    // Print album
-    Serial.print("Album: ");
-    Serial.println(currentlyPlaying.albumName);
-    Serial.print("Album URI: ");
-    Serial.println(currentlyPlaying.albumUri);
-    Serial.println("");
-
-    // Print progress into song
-    long progress = currentlyPlaying.progressMs;        // Duration passed in the song
-    long duration = currentlyPlaying.durationMs;        // Length of Song
-    Serial.print("Elapsed time of song (ms): ");
-    Serial.print(progress);
-    Serial.print(" of ");
-    Serial.println(duration);
-    Serial.println("");
-
-    float percentage = ((float)progress / (float)duration) * 100;
-    int clampedPercentage = (int)percentage;
-    Serial.print("<");
-    for (int j = 0; j < 50; j++) {
-        if (clampedPercentage >= (j * 2)) Serial.print("=");
-        else Serial.print("-");
-    }
-    Serial.println(">");
-    Serial.println("");
-
-    // Get album image
-    for (int i = 0; i < currentlyPlaying.numImages; i++) {
-        Serial.println("------------------------");
-        Serial.print("Album Image: ");
-        Serial.println(currentlyPlaying.albumImages[i].url);
-        Serial.print("Dimensions: ");
-        Serial.print(currentlyPlaying.albumImages[i].width);
-        Serial.print(" x ");
-        Serial.print(currentlyPlaying.albumImages[i].height);
-        Serial.println("");
-    }
     Serial.println("------------------------");
 }
 
 void loop() {
 
-    // We send requests for every delayBetweenRequests milliseconds,
-    // otherwise the API might time out our application
-    if (millis() > requestDueTime) {
+    // Read button state (pressed or not pressed)
+    int buttonState = digitalRead(BUTTON_PIN);
+
+    // We send requests if we hold down the button within the delayBetweenRequests interval
+    if (millis() > requestDueTime && buttonState == 0) {
 
         // Get status code: https://developer.spotify.com/documentation/web-api/
         int status = spotify.getCurrentlyPlaying(printCurrentlyPlayingToSerial, SPOTIFY_MARKET);

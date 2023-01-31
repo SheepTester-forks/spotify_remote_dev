@@ -6,4 +6,3 @@
 #define SPOTIFY_CLIENT_ID ""                  // Your client ID of your Spotify APP
 #define SPOTIFY_CLIENT_SECRET ""              // Your client Secret of your Spotify APP (Do Not share this!)
 #define SPOTIFY_REFRESH_TOKEN ""              // Your unique Spotify API token (Do Not share this!)
-
