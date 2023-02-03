@@ -15,7 +15,7 @@
 WiFiClientSecure client;
 SpotifyArduino spotify(client, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN);
 
-unsigned long delayBetweenRequests = 30000;             // Time between requests (30-seconds)
+unsigned long delayBetweenRequests = 10000;             // Time between requests (10-seconds)
 unsigned long requestDueTime;                           // Time when request due
 
 void setup() {
