@@ -41,20 +41,20 @@ This is an introductory project/workshop on IoT hardware where students can crea
 To get a local copy up and running follow these steps.
 
 ### Prerequisites
-Visual Studio Code:
+[Visual Studio Code](https://code.visualstudio.com/download):
   * Download Visual Studio Code on their website. VSCode is a powerful code editor that offers rich integrations, error checking, and code completion. It supports hundreds of languages, including Arduino C/C++ which we will heavily use for this project.
   
   * Requirements:
     * Operating systems: macOS, Linux, and Windows
     * At least 300 MB of space
 
-Python:
+[Python](https://www.python.org/downloads/):
   * Download the latest version of Python on their website. We will not be programming anything in Python, but PlatformIO, which we will discuss later below, requires Python for it to be installed.
 
   * Requirements:
     * At least 100 MB of space
 
-PlatformIO (Visual Studio Code Extension):
+[PlatformIO](https://platformio.org/) (Visual Studio Code Extension):
   * Open VSCode and head to the ‘Extensions’ menu. Search for ‘PlatformIO’ and install it. PlatformIO is a neat integration for embedded development, and we will be using it to program/upload code to our IoT boards. Unlike the Arduino IDE that we are traditionally familiar with, PlatformIO offers convenient features, such as port detection, larger boards selection, pre-loaded libraries, and all other features offered already in VSCode.
 
   * Requirements:
@@ -69,10 +69,10 @@ Additionally see here for [Prerequisites](https://docs.google.com/document/d/1ay
     git clone https://github.com/Project-in-a-Box-JSOE/spotify_remote_dev
   ```
   2. Open the repo as a PlatformIO project
-  3. Follow along through our [workshop slides](https://docs.google.com/presentation/d/1-BmdbKempxMLJTgQfdcMZBaUyBUgbPFwDdZr1YG0QO4/edit?usp=sharing)
 
 <!------------------------------------------ USAGE EXAMPLES -------------------------------------------------------------->
 ## Usage
+Follow along through our [workshop slides](https://docs.google.com/presentation/d/1-BmdbKempxMLJTgQfdcMZBaUyBUgbPFwDdZr1YG0QO4/edit?usp=sharing)
 
 
 <!------------------------------------------ HIGH LEVEL ARCHITECTURE ----------------------------------------------------->

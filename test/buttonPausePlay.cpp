@@ -50,24 +50,15 @@ void setup() {
     pinMode(BUTTON_PIN, INPUT_PULLUP);
 }
 
-void printCurrentlyPlayingToSerial(CurrentlyPlaying currentlyPlaying) {
-
-    Serial.println("--------- Currently Playing ---------");
-
-    // Print current track
-    Serial.print("Track: ");
-    Serial.println(currentlyPlaying.trackName);
-    Serial.println("");
-
-    // Print artists
-    Serial.println("Artists: ");
-    for (int i = 0; i < currentlyPlaying.numArtists; i++) {
-        Serial.print("Name: ");
-        Serial.println(currentlyPlaying.artists[i].artistName);
-        Serial.println("");
+void buttonListener(PlayerDetails playerDetails) {
+    if (playerDetails.isPlaying) {
+        Serial.println("Song is Paused!")
+        spotify.pause()
     }
-
-    Serial.println("------------------------");
+    else {
+        Serial.println("Song is Playing!")
+        spotify.play()
+    }
 }
 
 void loop() {
@@ -78,14 +69,13 @@ void loop() {
     // We send requests if we hold down the button within the delayBetweenRequests interval
     if (millis() > requestDueTime && buttonState == 0) {
 
-        // Get status code: https://developer.spotify.com/documentation/web-api/
-        int status = spotify.getCurrentlyPlaying(printCurrentlyPlayingToSerial, SPOTIFY_MARKET);
+        int status = spotify.getPlayerDetails(buttonListener, SPOTIFY_MARKET);
 
         if(status == 200) {
-            Serial.println("Successfully got currently playing");
+            Serial.println("Successfully got player details");
         }
         else if(status == 204) {
-            Serial.println("Doesn't seem to be anything playing");
+            Serial.println("No active player?");
         }
         else {
             Serial.print("Error: ");
