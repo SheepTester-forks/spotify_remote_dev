@@ -78,5 +78,5 @@ Follow along through our [workshop slides](https://docs.google.com/presentation/
 <!------------------------------------------ HIGH LEVEL ARCHITECTURE ----------------------------------------------------->
 ## High Level Architecture
 <p align="center">
-  <img src="high_level_arch.png />
+  <img src="high_level_arch.png" />
 </p>
