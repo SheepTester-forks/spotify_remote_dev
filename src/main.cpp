@@ -51,30 +51,36 @@ void setup() {
     pinMode(D1, INPUT_PULLUP);
 }
 
-long count = 0;
+char state = 0;
+bool wasDown = false;
+bool wasUp = false;
 
 void loop() {
 
-auto lmao = digitalRead(D1) == 0;
-    // We send requests if we hold down the button within the delayBetweenRequests interval
-    if (millis() > requestDueTime ) {
-if (digitalRead(D2) == 0) {
-  if (lmao) {
-    Serial.println("stop pressing both button  .. you fucker");
-  } else {
+  bool down = digitalRead(D1) == 0;
+  bool up = digitalRead(D2) == 0;
 
-      count ++;
-        Serial.print("up...   ");
-        Serial.println(count);
+  bool downPressed = !down && wasDown;
+  bool upPressed = !up && wasUp;
+
+  if (upPressed) {
+    if (downPressed) {
+      Serial.print("\r");
+      Serial.println(state);
+      state = 0;
+      Serial.print("\r");
+    } else {
+      state <<= 1;
+      Serial.print("\r");
+      Serial.print(state, 2);
+    }
+  } else if (downPressed) {
+      state <<= 1;
+      state |= 1;
+      Serial.print("\r");
+      Serial.print(state, 2);
   }
 
-        requestDueTime = millis() + delayBetweenRequests;
-        } else if (digitalRead(D1) == 0) {
-      count --;
-        Serial.print("down... ");
-        Serial.println(count);
-
-        requestDueTime = millis() + delayBetweenRequests;
-        }
-    }
+    wasDown = down;
+    wasUp = up;
 }
