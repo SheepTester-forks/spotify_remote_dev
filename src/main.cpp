@@ -1,9 +1,5 @@
 // Standard Libraries
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
-
-#include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 
 // Additional Libraries
@@ -12,78 +8,14 @@
 #include <SpotifyArduinoCert.h>
 #include "secrets.h"
 
-#define USE_IP_ADDRESS 1
+// Country code, including this is advisable
+#define SPOTIFY_MARKET "US"
 
-char scope[] = "user-read-playback-state%20user-modify-playback-state";
-char callbackURItemplate[] = "%s%s%s";
-char callbackURIProtocol[] = "http%3A%2F%2F";
-char callbackURIAddress[] = "%2Fcallback%2F";
-char callbackURI[100];
-
-ESP8266WebServer server(80);
 WiFiClientSecure client;
-SpotifyArduino spotify(client, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET);
+SpotifyArduino spotify(client, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN);
 
-const char *webpageTemplate =
-    R"(
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  </head>
-  <body>
-    <div>
-     <a href="https://accounts.spotify.com/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=%s">spotify Auth</a>
-    </div>
-  </body>
-</html>
-)";
-
-void handleRoot() {
-
-  char webpage[800];
-  sprintf(webpage, webpageTemplate, SPOTIFY_CLIENT_ID, callbackURI, scope);
-  server.send(200, "text/html", webpage);
-
-}
-
-void handleCallback() {
-
-  String code = "";
-  const char *refreshToken = NULL;
-  for(uint8_t i = 0; i < server.args(); i++) {
-    if(server.argName(i) == "code") {
-      code = server.arg(i);
-      refreshToken = spotify.requestAccessTokens(code.c_str(), callbackURI);
-    }
-  }
-
-  if(refreshToken != NULL) server.send(200, "text/plain", refreshToken);
-  else server.send(404, "text/plain", "Failed to load token, check serial monitor");
-
-}
-
-void handleNotFound() {
-
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-
-  for (uint8_t i = 0; i < server.args(); i++) {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-
-  Serial.print(message);
-  server.send(404, "text/plain", message);
-
-}
+unsigned long delayBetweenRequests = 10000;             // Time between requests (10-seconds)
+unsigned long requestDueTime;                           // Time when request due
 
 void setup() {
 
@@ -96,37 +28,110 @@ void setup() {
   // Wait for connection
   while(WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print("fuck");
+    Serial.print(".");
   }
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(WIFI_SSID);
   Serial.print("IP address: ");
-  IPAddress ipAddress = WiFi.localIP();
-  Serial.println(ipAddress);
-
-  if(MDNS.begin("arduino")) {
-    Serial.println("MDNS responder started");
-  }
+  Serial.println(WiFi.localIP());
 
   // Handle HTTPS Verification
-  client.setFingerprint(SPOTIFY_FINGERPRINT); // These expire every few months
-  // ... or don't!
-  //client.setInsecure();
+  client.setFingerprint(SPOTIFY_FINGERPRINT);
 
-  sprintf(callbackURI, callbackURItemplate, callbackURIProtocol, ipAddress.toString().c_str(), callbackURIAddress);
+  // Access Spotify API
+  Serial.println("Refreshing Access Tokens");
+  if(!spotify.refreshAccessToken()) {
+    Serial.println("Failed to get access tokens");
+  }
+}
 
-  server.on("/", handleRoot);
-  server.on("/callback/", handleCallback);
-  server.onNotFound(handleNotFound);
-  server.begin();
-  Serial.println("HTTP server started");
+void printCurrentlyPlayingToSerial(CurrentlyPlaying currentlyPlaying) {
 
+  Serial.println("--------- Currently Playing ---------");
+
+  // Print if song is playing
+  Serial.print("Is Playing: ");
+  if (currentlyPlaying.isPlaying) Serial.println("Yes");
+  else Serial.println("No");
+
+  // Print current track
+  Serial.print("Track: ");
+  Serial.println(currentlyPlaying.trackName);
+  Serial.print("Track URI: ");
+  Serial.println(currentlyPlaying.trackUri);
+  Serial.println("");
+
+  // Print artists
+  Serial.println("Artists: ");
+  for (int i = 0; i < currentlyPlaying.numArtists; i++) {
+    Serial.print("Name: ");
+    Serial.println(currentlyPlaying.artists[i].artistName);
+    Serial.print("Artist URI: ");
+    Serial.println(currentlyPlaying.artists[i].artistUri);
+    Serial.println("");
+  }
+
+  // Print album
+  Serial.print("Album: ");
+  Serial.println(currentlyPlaying.albumName);
+  Serial.print("Album URI: ");
+  Serial.println(currentlyPlaying.albumUri);
+  Serial.println("");
+
+  // Print progress into song
+  long progress = currentlyPlaying.progressMs;        // Duration passed in the song
+  long duration = currentlyPlaying.durationMs;        // Length of Song
+  Serial.print("Elapsed time of song (ms): ");
+  Serial.print(progress);
+  Serial.print(" of ");
+  Serial.println(duration);
+  Serial.println("");
+
+  float percentage = ((float)progress / (float)duration) * 100;
+  int clampedPercentage = (int)percentage;
+  Serial.print("<");
+  for (int j = 0; j < 50; j++) {
+    if (clampedPercentage >= (j * 2)) Serial.print("=");
+    else Serial.print("-");
+  }
+  Serial.println(">");
+  Serial.println("");
+
+  // Get album image
+  for (int i = 0; i < currentlyPlaying.numImages; i++) {
+    Serial.println("------------------------");
+    Serial.print("Album Image: ");
+    Serial.println(currentlyPlaying.albumImages[i].url);
+    Serial.print("Dimensions: ");
+    Serial.print(currentlyPlaying.albumImages[i].width);
+    Serial.print(" x ");
+    Serial.print(currentlyPlaying.albumImages[i].height);
+    Serial.println("");
+  }
+  Serial.println("------------------------");
 }
 
 void loop() {
 
-  MDNS.update();
-  server.handleClient();
+  // We send requests for every delayBetweenRequests milliseconds,
+  // otherwise the API might time out our application
+  if (millis() > requestDueTime) {
 
+    // Get status code: https://developer.spotify.com/documentation/web-api/
+    int status = spotify.getCurrentlyPlaying(printCurrentlyPlayingToSerial, SPOTIFY_MARKET);
+
+    if(status == 200) {
+      Serial.println("Successfully got currently playing");
+    }
+    else if(status == 204) {
+      Serial.println("Doesn't seem to be anything playing");
+    }
+    else {
+      Serial.print("Error: ");
+      Serial.println(status);
+    }
+
+    requestDueTime = millis() + delayBetweenRequests;
+  }
 }
