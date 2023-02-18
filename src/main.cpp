@@ -3,94 +3,78 @@
 #include <WiFiClientSecure.h>
 
 // Additional Libraries
-#include <ArduinoJson.h>
-#include <SpotifyArduino.h>
-#include <SpotifyArduinoCert.h>
-#include "secrets.h"
+// #include <ArduinoJson.h>
+// #include <SpotifyArduino.h>
+// #include <SpotifyArduinoCert.h>
+// #include "secrets.h"
 
 // Country code, including this is advisable. Button pin
-#define SPOTIFY_MARKET "US"
-#define BUTTON_PIN D2
+// #define SPOTIFY_MARKET "US"
+// #define BUTTON_PIN D2
 
-WiFiClientSecure client;
-SpotifyArduino spotify(client, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN);
+// WiFiClientSecure client;
+// SpotifyArduino spotify(client, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN);
 
-unsigned long delayBetweenRequests = 10000;             // Time between requests (10-seconds)
+unsigned long delayBetweenRequests = 100;             // Time between requests (10-seconds)
 unsigned long requestDueTime;                           // Time when request due
 
 void setup() {
 
     Serial.begin(115200);
 
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    // WiFi.mode(WIFI_STA);
+    // WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.println("");
 
     // Wait for connection
-    while(WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.print("Connected to ");
-    Serial.println(WIFI_SSID);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
+    // while(WiFi.status() != WL_CONNECTED) {
+    //     delay(500);
+    //     Serial.print("connecting ");
+    // }
+    // Serial.println("");
+    // Serial.print("Connected to ");
+    // Serial.println(WIFI_SSID);
+    // Serial.print("IP address: ");
+    // Serial.println(WiFi.localIP());
 
-    // Handle HTTPS Verification
-    client.setFingerprint(SPOTIFY_FINGERPRINT);
+    // // Handle HTTPS Verification
+    // client.setFingerprint(SPOTIFY_FINGERPRINT);
 
-    // Access Spotify API
-    Serial.println("Refreshing Access Tokens");
-    if(!spotify.refreshAccessToken()) {
-        Serial.println("Failed to get access tokens");
-    }
+    // // Access Spotify API
+    // Serial.println("Refreshing Access Tokens");
+    // if(!spotify.refreshAccessToken()) {
+    //     Serial.println("Failed to get access tokens");
+    // }
 
     // Configure button as an input
-    pinMode(BUTTON_PIN, INPUT_PULLUP);
+    pinMode(D2, INPUT_PULLUP);
+    pinMode(D1, INPUT_PULLUP);
 }
 
-void buttonListener(CurrentlyPlaying currentlyPlaying) {
-
-    Serial.println("--------- Currently Playing ---------");
-
-    // Print current track
-    Serial.print("Track: ");
-    Serial.println(currentlyPlaying.trackName);
-    Serial.println("");
-
-    // Print artists
-    Serial.println("Artists: ");
-    for (int i = 0; i < currentlyPlaying.numArtists; i++) {
-        Serial.print("Name: ");
-        Serial.println(currentlyPlaying.artists[i].artistName);
-        Serial.println("");
-    }
-
-    Serial.println("------------------------");
-}
+long count = 0;
 
 void loop() {
 
-    // Read button state (pressed or not pressed)
-    int buttonState = digitalRead(BUTTON_PIN);
-
+auto lmao = digitalRead(D1) == 0;
     // We send requests if we hold down the button within the delayBetweenRequests interval
-    if (millis() > requestDueTime && buttonState == 0) {
+    if (millis() > requestDueTime ) {
+if (digitalRead(D2) == 0) {
+  if (lmao) {
+    Serial.println("stop pressing both button  .. you fucker");
+  } else {
 
-        int status = spotify.getCurrentlyPlaying(buttonListener, SPOTIFY_MARKET);
-
-        if(status == 200) {
-            Serial.println("Successfully got currently playing");
-        }
-        else if(status == 204) {
-            Serial.println("Doesn't seem to be anything playing");
-        }
-        else {
-            Serial.print("Error: ");
-            Serial.println(status);
-        }
+      count ++;
+        Serial.print("up...   ");
+        Serial.println(count);
+  }
 
         requestDueTime = millis() + delayBetweenRequests;
+        } else if (digitalRead(D1) == 0) {
+      count --;
+        Serial.print("down... ");
+        Serial.println(count);
+
+        requestDueTime = millis() + delayBetweenRequests;
+        }
     }
 }
